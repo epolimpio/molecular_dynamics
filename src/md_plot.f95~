@@ -30,20 +30,6 @@ contains
     -45d0)
   end subroutine md_plot_init
 
-  subroutine linspace(x1, x2, n, x)
-
-    real(8), intent(in) :: x1, x2
-    integer, intent(in) :: n
-    real(8), intent(out) :: x(n) real(8) :: dx
-    integer :: i
-
-    dx = (x2 - x1) / (n - 1)
-    do i = 1, n
-      x(i) = x1 + (i - 1) * dx
-    end do
-
-  end subroutine linspace
-
   subroutine md_plot_close()
     call plspause(.false.)
     call plend()
