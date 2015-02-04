@@ -6,25 +6,48 @@ module initial_conditions
 
 contains
   
-  subroutine fcc_lattice(n, r, position)
+  subroutine fcc_lattice(n, sigma, position)
     
-    real(8), intent(in) :: r
+    real(8), intent(in) :: sigma
     integer, intent(in) :: n
     real(8), intent(out) :: position(3, n)
+    ! Define the normal vectors
+    integer(8), parameter :: E1(3) = (/ 1, 0, 0 /)
+    integer(8), parameter :: E2(3) = (/ 0, 1, 0 /)
+    integer(8), parameter :: E3(3) = (/ 0, 0, 1 /)
+    real(8), parameter :: CUBE_CORNER(3) = (/ 0, 0, 0 /)
+    
+    real(8) :: corner_pos(3)
+    integer :: i, j, k, n_aux, cube_side
+    real(8) :: a
 
-    integer :: num_cubes, i, j
-    real(8) :: cube_corner_pos(3)
+    ! The cube side (a) is given by 2^(2/3) * sigma
+    ! in order for the particles on the faces be 
+    ! 2^(1/6) * sigma (minimum of the potential)
+    ! from the corner particles.
 
-    num_cubes = n/4
+    a = 2d0**(2d0/3) * sigma
 
-    position(:,1) = (/ 0, 0, 0 /)
-    cube_corner_pos = position(:, 1)
-
-    do i = 2,   
-
-  
-
-  end subroutine lattice
+    cube_side = nint((n/4)**(1d0/3))
+    n_aux = 1
+    ! For each cube side we iterate over the corners
+    do i = 1, cube_side
+      do j = 1, cube_side
+        do k = 1, cube_side
+          corner_pos = CUBE_CORNER &
+           + a * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
+          position(:,n_aux) = corner_pos
+          position(:,n_aux + 1) = corner_pos &
+           + a/2d0 * (E1 + E2) 
+          position(:,n_aux + 1) = corner_pos &
+           + a/2d0 * (E1 + E3)
+          position(:,n_aux + 1) = corner_pos &
+           + a/2d0 * (E2 + E3)
+          n_aux = n_aux + 4
+        end do
+      end do
+    end do
+  end subroutine fcc_lattice
 
   subroutine max_boltz(n, temp, momenta)
   ! We use Gaussian random to generate the particle momenta 
