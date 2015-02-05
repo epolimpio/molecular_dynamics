@@ -1,6 +1,6 @@
 FC      = gfortran
-#FFLAGS  = -Wall -Wextra -O3 -fimplicit-none -march=native
-FFLAGS  = -Wall -Wextra -O3 -fimplicit-none
+FFLAGS  = -Wall -Wextra -O3 -fimplicit-none -march=native
+#FFLAGS  = -Wall -Wextra -O3 -fimplicit-none
 #FFLAGS += -pedantic -fbounds-check -fmax-errors=1 -g
 #FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 #LDFLAGS = $(shell pkg-config --libs plplotd-f95)

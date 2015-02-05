@@ -35,12 +35,12 @@ contains
         do k = 1, cube_side
           corner_pos = CUBE_CORNER &
            + a * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
-          r(n_aux, :) = corner_pos
-          r(n_aux + 1, :) = corner_pos &
+          r(:, n_aux) = corner_pos
+          r(:, n_aux + 1) = corner_pos &
            + 0.5d0 * a * (E1 + E2)
-          r(n_aux + 2, :) = corner_pos &
+          r(:, n_aux + 2) = corner_pos &
            + 0.5d0 * a * (E1 + E3)
-          r(n_aux + 3, :) = corner_pos &
+          r(:, n_aux + 3) = corner_pos &
            + 0.5d0 * a * (E2 + E3)
           n_aux = n_aux + 4
         end do
@@ -66,10 +66,10 @@ contains
       p_sum = 0
       do j = 1, n
         call box_muller(p_rnd)
-        v(j, i) = var_p*p_rnd
+        v(i, j) = var_p*p_rnd
       end do
-      v(:, i) = v(:, i) - sum(v(:, i))/n
-      print *, "Mean: ", i, sum(v(:, i))/n
+      v(i, :) = v(i, :) - sum(v(i, :))/n
+      print *, "Mean: ", i, sum(v(i, :))/n
      end do
  	  
   end subroutine max_boltz
