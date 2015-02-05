@@ -6,11 +6,10 @@ module initial_conditions
 
 contains
   
-  subroutine fcc_lattice(n, sigma, position)
+  subroutine fcc_lattice(sigma, r)
     
     real(8), intent(in) :: sigma
-    integer, intent(in) :: n
-    real(8), intent(out) :: position(3, n)
+    real (8), intent(inout), dimension(:,:) :: r
     ! Define the normal vectors
     integer(8), parameter :: E1(3) = (/ 1, 0, 0 /)
     integer(8), parameter :: E2(3) = (/ 0, 1, 0 /)
@@ -18,17 +17,17 @@ contains
     real(8), parameter :: CUBE_CORNER(3) = (/ 0, 0, 0 /)
     
     real(8) :: corner_pos(3)
-    integer :: i, j, k, n_aux, cube_side
+    integer :: i, j, k, n_aux, cube_side, n
     real(8) :: a
 
     ! The cube side (a) is given by 2^(2/3) * sigma
     ! in order for the particles on the faces be 
     ! 2^(1/6) * sigma (minimum of the potential)
     ! from the corner particles.
-
+    n = size(r, 1)
     a = 2d0**(2d0/3) * sigma
-
     cube_side = nint((n/4)**(1d0/3))
+    print *, "Cube side: ", cube_side
     n_aux = 1
     ! For each cube side we iterate over the corners
     do i = 1, cube_side
@@ -36,40 +35,41 @@ contains
         do k = 1, cube_side
           corner_pos = CUBE_CORNER &
            + a * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
-          position(:,n_aux) = corner_pos
-          position(:,n_aux + 1) = corner_pos &
-           + a/2d0 * (E1 + E2) 
-          position(:,n_aux + 1) = corner_pos &
-           + a/2d0 * (E1 + E3)
-          position(:,n_aux + 1) = corner_pos &
-           + a/2d0 * (E2 + E3)
+          r(n_aux, :) = corner_pos
+          r(n_aux + 1, :) = corner_pos &
+           + 0.5d0 * a * (E1 + E2)
+          r(n_aux + 2, :) = corner_pos &
+           + 0.5d0 * a * (E1 + E3)
+          r(n_aux + 3, :) = corner_pos &
+           + 0.5d0 * a * (E2 + E3)
           n_aux = n_aux + 4
         end do
       end do
     end do
+    print *, "N_Lattice: ", size(r, 1)
   end subroutine fcc_lattice
 
-  subroutine max_boltz(n, temp, momenta)
+  subroutine max_boltz(m, temp, v)
   ! We use Gaussian random to generate the particle momenta 
   ! in each direction for N-1 particles. The last particle 
   ! momenta is such that the sum is zero
 
-    real(8), intent(in) :: temp
-    integer, intent(in) :: n
-    real(8), intent(out) :: momenta(3, n)
-    integer :: i, j
+    real(8), intent(in) :: temp, m
+    real (8), intent(inout), dimension(:,:) :: v
+    integer :: i, j, n
     real(8) :: p_sum, p_rnd, var_p
-	  
-    var_p = temp
+
+    var_p = temp/m
+    n = size(v, 1)
 
     do i = 1, 3
       p_sum = 0
       do j = 1, n
         call box_muller(p_rnd)
-        momenta(i, j) = var_p*p_rnd
+        v(j, i) = var_p*p_rnd
       end do
-      momenta(i,:) = momenta(i,:) - sum(momenta(i,:))/n
-      print *, sum(momenta(i,:))/n
+      v(:, i) = v(:, i) - sum(v(:, i))/n
+      print *, "Mean: ", i, sum(v(:, i))/n
      end do
  	  
   end subroutine max_boltz

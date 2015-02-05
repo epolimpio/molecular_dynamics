@@ -1,7 +1,7 @@
 # Milestones
 
 ## Milestone 1
-* Lay out program
+* Lay out programs
   * Start with a LaTeX document, write up you understanding of the model
   * Spend some time planning each program module (integrator, particle data structures, subroutines to calculate physical quantities)
 
