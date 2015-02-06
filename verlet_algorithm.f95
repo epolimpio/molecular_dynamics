@@ -1,7 +1,7 @@
 module verlet
 
 implicit none
-public verlet_algorithm, total_force, kinetic_energy
+public verlet_algorithm, total_force
 
 contains
     subroutine verlet_algorithm(EPS, SIGMA, MASS, l, dt, r, v, a, Ep)
@@ -29,7 +29,7 @@ contains
         real(8), intent(out):: Ep
         integer :: N, i, j
         real(8) :: diff_aux(3), dist, fij(3)
-        N = size(r,1)
+        N = size(r,2)
         Ep = 0
         a(:,:) = 0
         do i = 1, N
@@ -47,23 +47,4 @@ contains
 
     end subroutine total_force
 
-    subroutine kinetic_energy(v, MASS, Ek, mom)
-
-      real (8), intent(in), dimension(:,:) :: v
-      real(8), intent(in) :: MASS
-      real(8), intent(out) :: Ek
-      real(8), intent(out) :: mom(3)
-      integer :: n, i
-
-      n = size(v, 1)
-
-      Ek = 0
-      do i = 1, n
-        Ek = Ek + 0.5d0*MASS*dot_product(v(:, i), v(:, i))
-      end do
-
-      do i = 1, 3
-        mom(i) = MASS * sum(v(i, :))
-      end do
-    end subroutine kinetic_energy
 end module

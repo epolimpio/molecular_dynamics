@@ -6,9 +6,9 @@ module initial_conditions
 
 contains
   
-  subroutine fcc_lattice(sigma, r)
+  subroutine fcc_lattice(latt_size, r)
     
-    real(8), intent(in) :: sigma
+    real(8), intent(in) :: latt_size
     real (8), intent(inout), dimension(:,:) :: r
     ! Define the normal vectors
     integer(8), parameter :: E1(3) = (/ 1, 0, 0 /)
@@ -18,14 +18,13 @@ contains
     
     real(8) :: corner_pos(3)
     integer :: i, j, k, n_aux, cube_side, n
-    real(8) :: a
 
     ! The cube side (a) is given by 2^(2/3) * sigma
     ! in order for the particles on the faces be 
     ! 2^(1/6) * sigma (minimum of the potential)
     ! from the corner particles.
-    n = size(r, 1)
-    a = 2d0**(2d0/3) * sigma
+    n = size(r, 2)
+    
     cube_side = nint((n/4)**(1d0/3))
     print *, "Cube side: ", cube_side
     n_aux = 1
@@ -34,19 +33,19 @@ contains
       do j = 1, cube_side
         do k = 1, cube_side
           corner_pos = CUBE_CORNER &
-           + a * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
+           + latt_size * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
           r(:, n_aux) = corner_pos
           r(:, n_aux + 1) = corner_pos &
-           + 0.5d0 * a * (E1 + E2)
+           + 0.5d0 * latt_size * (E1 + E2)
           r(:, n_aux + 2) = corner_pos &
-           + 0.5d0 * a * (E1 + E3)
+           + 0.5d0 * latt_size * (E1 + E3)
           r(:, n_aux + 3) = corner_pos &
-           + 0.5d0 * a * (E2 + E3)
+           + 0.5d0 * latt_size * (E2 + E3)
           n_aux = n_aux + 4
         end do
       end do
     end do
-    print *, "N_Lattice: ", size(r, 1)
+    print *, "N_Lattice: ", size(r, 2)
   end subroutine fcc_lattice
 
   subroutine max_boltz(m, temp, v)
@@ -60,7 +59,7 @@ contains
     real(8) :: p_sum, p_rnd, var_p
 
     var_p = temp/m
-    n = size(v, 1)
+    n = size(v, 2)
 
     do i = 1, 3
       p_sum = 0
