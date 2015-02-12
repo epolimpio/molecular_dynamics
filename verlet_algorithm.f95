@@ -1,6 +1,8 @@
 module verlet
 
 use simParam
+use plot_part
+use physical_quantities
 
 implicit none
 
@@ -16,6 +18,7 @@ contains
     use initial_conditions
 
     call init_param
+    call init_histogram
     allocate(r(3,N))
     allocate(v(3,N))
     allocate(a(3,N))
@@ -27,16 +30,35 @@ contains
     print *, "Initial Ep: ", Ep
     print *, "Initial E: ", Ek+Ep
 
+    call Init_Plot
+
   end subroutine init_all
 
   subroutine stabilize_temp
 
     integer(8) :: i, j
+    
+    do i = 1, FIRST_RENORM
+      call update_verlet
+    end do
+    call kinetic_energy
+      
+    ! Print Results
+    print *, "1st Renorm... ", "Ek: ", Ek, "Ep: ", Ep, "E: ", Ek+Ep, "T: ", temp_out
+
+    ! Renormalize
+    v = sqrt(1d0*TEMP/temp_out)*v    
+
     do i = 1, NUM_RENORM
       do j = 1, STEPS_TO_RENORM
         call update_verlet
       end do
       call kinetic_energy
+      
+      ! Print Results
+      print *, "Renorm... ", "Ek: ", Ek, "Ep: ", Ep, "E: ", Ek+Ep, "T: ", temp_out
+      
+      ! Renormalize
       v = sqrt(1d0*TEMP/temp_out)*v
     end do
 
@@ -46,15 +68,34 @@ contains
 
     integer(8) :: i
 
+    open(unit = 1001, file = "data/energy.dat")
+    open(unit = 1002, file = "data/correlation.dat")
+
     do i = 1, NUM_STEPS
       
       call update_verlet
       call kinetic_energy
-      
-      if (mod(i,10) == 0) then
+
+      write(1001, *) Ek, Ep, Ek+Ep, temp_out
+
+      ! Print results every 100 steps
+      if (mod(i,100) == 0) then
         print *, i, "Ek: ", Ek, "Ep: ", Ep, "E: ", Ek+Ep, "T: ", temp_out
       end if
     end do
+
+    call normalize_histogram
+
+    do i = 1, size(correl_histogram)
+      write(1002, *) correl_histogram(i)
+    end do
+
+    close(1001)
+    close(1002)
+
+    print *, "END!"
+
+    call EndPlot()
 
   end subroutine simulate_dynamics
 
@@ -62,6 +103,7 @@ contains
       
     v = v + 0.5*a*DT
     r = modulo(r + v*DT, box_size)
+    call plot_particles(r, N)
     call total_force
     v = v + 0.5*a*DT
 
@@ -70,7 +112,7 @@ contains
   subroutine total_force
 
     integer :: i, j
-    real(8) :: diff_aux(3), dist, fij(3)
+    real(8) :: diff_aux(3), dist2, fij
         
     Ep = 0
     a(:,:) = 0
@@ -78,12 +120,17 @@ contains
         do j = (i + 1), N
             diff_aux = r(:, j) - r(:, i)
             diff_aux = diff_aux - nint(diff_aux/box_size)*box_size
-            dist = sqrt(dot_product(diff_aux, diff_aux))
-            fij = (-4d0)* ((12d0) * (1d0/dist) ** (11d0) - &
-             (6d0) * (1d0/dist) ** (5d0)) * (diff_aux) / (dist)
-            a(:, i) = a(:, i) + fij
-            a(:, j) = a(:, j) - fij
-            Ep = Ep + 4d0*((1d0/dist)**(12d0) - (1d0/dist)**(6d0))
+            dist2 = dot_product(diff_aux, diff_aux)
+
+            if (dist2 .LE. CUTOFF**2d0) then
+              fij = (-4d0)* ((12d0) * (1d0/dist2) ** (7d0) - &
+               (6d0) * (1d0/dist2) ** (4d0))
+              a(:, i) = a(:, i) + diff_aux*fij
+              a(:, j) = a(:, j) - diff_aux*fij
+              Ep = Ep + 4d0*((1d0/dist2)**(6d0) - (1d0/dist2)**(3d0))
+            end if
+            
+            call place_on_histogram(sqrt(dist2))
         end do
     end do
 

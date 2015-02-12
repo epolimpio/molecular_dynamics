@@ -5,8 +5,9 @@ import numpy as np
 import pylab as P
 
 data = np.loadtxt("data/energy.dat")
+correl = np.loadtxt("data/correlation.dat")
 
-print len(data)
+print len(correl)
 
 Ek = data[:,0]
 Ep = data[:,1]
@@ -26,6 +27,9 @@ plt.subplot(313)
 plt.plot(n, Etot, 'g', label = 'Total')
 
 plt.figure(2)
-plt.plot(n, t, 'g', label = 'Total')
-print np.mean(t[1000,])
+plt.plot(n, t, 'g', label = 'Temperature')
+
+plt.figure(3)
+plt.plot(range(0,len(correl)), correl, 'g', label = 'Temperature')
+
 plt.show()

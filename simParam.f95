@@ -17,6 +17,10 @@ module simParam
     ! Temperature renormalization parameters
     integer :: STEPS_TO_RENORM
     integer :: NUM_RENORM
+    integer :: FIRST_RENORM
+
+    ! Size of histogram bin
+    real(8) :: DR
 
     ! Lattice size
     real(8) :: latt_size, N_cube_side, box_size
@@ -27,16 +31,23 @@ contains
 
         ! System parameters
         N = 864
-        TEMP = 1.3
-        DENSITY = 1
+        TEMP = 1
+        DENSITY = 0.8
 
         ! Simulation parameters
         DT = 4d-3
-        NUM_STEPS = 2000
+        NUM_STEPS = 1500
 
         ! Temperature renormalization parameters
-        STEPS_TO_RENORM = 30
-        NUM_RENORM = 20
+        FIRST_RENORM = 200
+        STEPS_TO_RENORM = 2
+        NUM_RENORM = 150
+
+        ! Potential cutoff
+        CUTOFF = 4 ! 4*sigma
+
+        ! Histogram bin size
+        DR = 1d-3 ! 1/100 of sigma
 
         ! Lattice size
         latt_size = (4d0/DENSITY)**(1d0/3)

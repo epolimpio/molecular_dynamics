@@ -15,8 +15,9 @@ TARGET = main.exe       # Name of final executable to produce
 OBJS =
 OBJS += simParam.o
 OBJS += initial_conditions.o
-OBJS += verlet_algorithm.o
 OBJS += plot_part.o
+OBJS += physical_quantities.o
+OBJS += verlet_algorithm.o
 OBJS += main.o # List of object dependencies
 
 $(TARGET): $(OBJS)
