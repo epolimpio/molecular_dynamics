@@ -1,0 +1,14 @@
+MODULE PlotPart
+  implicit none
+
+contains
+
+  subroutine PlotParticles(Pos, N)
+  integer :: N, i
+  real(8) :: Pos(3,N)
+  do i = 1, N
+    call setpoint(Pos(1,i), Pos(2,i))
+  end do
+  end subroutine PlotParticles
+end module 
+  

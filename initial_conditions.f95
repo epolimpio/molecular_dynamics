@@ -1,14 +1,27 @@
 module initial_conditions
 
   implicit none
-  private init_random_seed
+  private init_random_seed, box_muller
   public max_boltz, fcc_lattice
 
 contains
   
-  subroutine fcc_lattice(latt_size, r)
+  subroutine initial_values(r, v)
+
+    use simParam
+
+    real (8), intent(inout), dimension(:,:) :: r
+    real (8), intent(inout), dimension(:,:) :: v
+
+    call fcc_lattice(r)
+    call max_boltz(v)
+
+  end subroutine initial_values
+
+  subroutine fcc_lattice(r)
+
+    use simParam, only: latt_size
     
-    real(8), intent(in) :: latt_size
     real (8), intent(inout), dimension(:,:) :: r
     ! Define the normal vectors
     integer(8), parameter :: E1(3) = (/ 1, 0, 0 /)
@@ -48,17 +61,17 @@ contains
     print *, "N_Lattice: ", size(r, 2)
   end subroutine fcc_lattice
 
-  subroutine max_boltz(m, temp, v)
+  subroutine max_boltz(v)
   ! We use Gaussian random to generate the particle momenta 
   ! in each direction for N-1 particles. The last particle 
   ! momenta is such that the sum is zero
 
-    real(8), intent(in) :: temp, m
+    use simParam, only: TEMP
     real (8), intent(inout), dimension(:,:) :: v
     integer :: i, j, n
     real(8) :: p_sum, p_rnd, var_p
 
-    var_p = temp/m
+    var_p = temp
     n = size(v, 2)
 
     do i = 1, 3

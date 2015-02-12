@@ -11,6 +11,7 @@ print len(data)
 Ek = data[:,0]
 Ep = data[:,1]
 Etot = data[:,2]
+t = data[:,3]
 
 n = range(0,len(Ek))
 
@@ -25,6 +26,6 @@ plt.subplot(313)
 plt.plot(n, Etot, 'g', label = 'Total')
 
 plt.figure(2)
-plt.plot(n, Etot, 'g', label = 'Total')
-
+plt.plot(n, t, 'g', label = 'Total')
+print np.mean(t[1000,])
 plt.show()
