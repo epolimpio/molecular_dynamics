@@ -8,8 +8,6 @@ contains
   
   subroutine initial_values(r, v)
 
-    use simParam
-
     real (8), intent(inout), dimension(:,:) :: r
     real (8), intent(inout), dimension(:,:) :: v
 
@@ -20,31 +18,29 @@ contains
 
   subroutine fcc_lattice(r)
 
-    use simParam, only: latt_size
+    use simParam, only: latt_size, N_cube_side
     
     real (8), intent(inout), dimension(:,:) :: r
+    
     ! Define the normal vectors
     integer(8), parameter :: E1(3) = (/ 1, 0, 0 /)
     integer(8), parameter :: E2(3) = (/ 0, 1, 0 /)
     integer(8), parameter :: E3(3) = (/ 0, 0, 1 /)
+
+    ! Corner to place the first particle
     real(8), parameter :: CUBE_CORNER(3) = (/ 0, 0, 0 /)
     
+    ! Local variables
     real(8) :: corner_pos(3)
-    integer :: i, j, k, n_aux, cube_side, n
-
-    ! The cube side (a) is given by 2^(2/3) * sigma
-    ! in order for the particles on the faces be 
-    ! 2^(1/6) * sigma (minimum of the potential)
-    ! from the corner particles.
-    n = size(r, 2)
+    integer :: i, j, k, n_aux
     
-    cube_side = nint((n/4)**(1d0/3))
-    print *, "Cube side: ", cube_side
+    print *, "Cube side: ", N_cube_side
     n_aux = 1
+    
     ! For each cube side we iterate over the corners
-    do i = 1, cube_side
-      do j = 1, cube_side
-        do k = 1, cube_side
+    do i = 1, N_cube_side
+      do j = 1, N_cube_side
+        do k = 1, N_cube_side
           corner_pos = CUBE_CORNER &
            + latt_size * ((i-1)*E1 + (j-1)*E2 + (k-1)*E3)
           r(:, n_aux) = corner_pos
@@ -101,10 +97,9 @@ contains
 
   end subroutine box_muller
 
-	! Function to initialize the seed of the random
-	! number generator
-
   subroutine init_random_seed()
+  ! Function to initialize the seed of the random
+  ! number generator
 
     integer, allocatable :: seed(:)
     integer :: i, n, un, istat, dt(8), pid, t(2), s

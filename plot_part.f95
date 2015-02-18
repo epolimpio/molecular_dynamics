@@ -1,10 +1,10 @@
-MODULE Plot_Part
+module Plot_Part
   implicit none
 
 contains
 
   subroutine Init_Plot
-
+  ! Initializes the plotting framework
     use simParam, only: box_size
 
     call InitPlot('lightblue', 700, 700, 'out', 1)
@@ -14,11 +14,14 @@ contains
   end subroutine Init_Plot
 
   subroutine Plot_Particles(Pos, N)
+  ! Plot all the positions
+
       integer :: N, i
       real(8) :: Pos(3,N)
       do i = 1, N
         call setpoint(Pos(1,i), Pos(2,i))
       end do
+      
   end subroutine Plot_Particles
 
 end module plot_part

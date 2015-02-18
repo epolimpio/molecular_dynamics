@@ -4,8 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pylab as P
 
-data = np.loadtxt("data/energy.dat")
-correl = np.loadtxt("data/correlation.dat")
+data = np.loadtxt("data/energy02.dat", skiprows=3)
+correl = np.loadtxt("data/correlation02.dat", skiprows=3)
 
 print len(correl)
 

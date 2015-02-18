@@ -1,7 +1,8 @@
 program ArgonSim
 
-    use verlet
-
+    use simulation
+    use simParam
+    
     call init_all
     call stabilize_temp
     call simulate_dynamics

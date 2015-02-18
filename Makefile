@@ -17,7 +17,8 @@ OBJS += simParam.o
 OBJS += initial_conditions.o
 OBJS += plot_part.o
 OBJS += physical_quantities.o
-OBJS += verlet_algorithm.o
+OBJS += output_file.o
+OBJS += simulation.o
 OBJS += main.o # List of object dependencies
 
 $(TARGET): $(OBJS)
@@ -29,3 +30,4 @@ $(TARGET): $(OBJS)
 .PHONY:clean
 clean:
 	rm -r *.mod *.dat *.exe *.o
+
