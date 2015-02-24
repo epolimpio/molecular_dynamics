@@ -29,5 +29,5 @@ $(TARGET): $(OBJS)
 
 .PHONY:clean
 clean:
-	rm -r *.mod *.dat *.exe *.o
+	rm -r *.mod *.exe *.o
 
