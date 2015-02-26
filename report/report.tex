@@ -45,9 +45,30 @@ In all the simulations we follow the approach of \textit{Verlet} \cite{Verlet196
 \begin{equation}
 	\vec{F_{ij}} = 24 \left( \vec{r_i} - \vec{r_j} \right) \left(2r_{ij}^{-14} - r_{ij}^{-8} \right)
 \end{equation}
-where $r_{ij} = |\vec{r_i} - \vec{r_j}|$.
+where $r_{ij} = |\vec{r_i} - \vec{r_j}|$. The force over each particle is calculated as the sum over all the pairs of the force acting over it. However, we apply a cutoff distance over which we consider that the force vanishes. This is reasonable looking at the form of the force, which decays as $r^{-8}$ for long distances. In accordance to the literature we choose $r_{\text{cutoff}} = 3.3 \sigma$ \cite{Verlet1967, ICCPBook}, but we do not include in our simulation a neighbour list.
 
+With the force, to calculate the motion of the particles we need an integration method for the second order equation we need to solve ($\vec{F} = m\ddot{\vec{r}}$). This is accomplished by the use of the \textit{Verlet Algorithm}. We outline below how the algorithm is implemented. For the details regarding the theory behind it, we recommend the reader to look at Sections 8.4 and A.7.1 of \textit{Thijssen} book \cite{ICCPBook}. Using a time step $h$, the update of positions and velocities are done by:
 
+\begin{equation}
+\begin{array}{l l}
+
+\vec{v}(h/2) = \vec{v}(0) + \vec{a}(0)\frac{h}{2} \\
+\vec{r}(h) = \vec{r}(0) + \vec{v}(h/2)h \\
+\text{Calculate $\vec{a}(h)$ using $\vec{r}(h)$} \\
+\vec{v}(h) = \vec{v}(h/2) + \vec{a}(h)\frac{h}{2}
+
+\end{array}
+\end{equation}
+
+It is important to point out that the accumulated error in position after a large number of integration steps is $\mathcal{O}(h^2)$. The same holds true for the velocity. Although better precision algorithms could be implemented, the \textit{Verlet algorithm} has the advantage of being simple and stable. Most important, the algorithm is time reversible, which warranties that the integrator will not lead to energy drift (arithmetic errors can lead to drift for long times). This is a property of the more general concept of \textit{sympletic integrators}, which has the property of generating solutions with the same geometric properties in phase space as the continuum dynamical system. The \textit{Verlet algorithm} is the simplest implementation of this class of integrators.
+
+\subsection{Initial conditions}
+
+\subsection{Choice of the time step}
+
+In natural units, the time is given in units of $\tau = \sqrt{m \sigma^2/\epsilon}$ which, for Argon atoms, is equal to $2.156 \textup{ps}$. Approximating the Lennard-Jones potential as an harmonic potential around the minimum, we can estimate the oscillation frequency. This is given by $\omega^2 = \frac{72 \epsilon}{m 2^{1/3} \sigma^2}$, which means that the period of oscillation is $T \approx 0.83 \tau$. Hence, we need to choose the time step to be a small fraction os this period. In our simulations we use $h = 0.004 \tau$, which is around $5 \%$ of the period and is around $10^{-14} \textup{s}$ for argon, in line with the literature \cite{Rahman1964}.  
+
+\subsection{Periodic boundary conditions}
 
 \section{Thermodynamic Quantities \label{thermo}}
 

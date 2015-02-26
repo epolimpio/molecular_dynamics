@@ -32,12 +32,12 @@ def mean_error(vector):
 	num_boxes = len(vector)//BOX_SIZE
 	data = np.split(vector, num_boxes)
 	means = []
+	stds = []
 	for box in data:
 		means.append(np.mean(box))
+		stds.append(np.std(box))
 
-	boxes = np.array(means)
-
-	return [np.mean(boxes), np.std(boxes)]
+	return [np.mean(np.array(means)), np.mean(np.array(stds))/sqrt(num_boxes)]
 
 def significant_digit(number, error):
 
@@ -56,12 +56,16 @@ def calc_heat_cap(Ek, N):
 # Calculate heat capacity from Kinetic Energy
 	num_boxes = len(Ek)//BOX_SIZE
 	data = np.split(Ek, num_boxes)
-	ratio = []
+	all_data = []
+	var_data = []
 	for box in data:
-		ratio.append(np.var(box)/pow(np.mean(box),2))
-	boxes = np.array(ratio)
-	cv = 1/(1/(1.5*N) - np.mean(boxes))
-	cv_err = abs(pow(cv,2)*np.std(boxes))
+		mean = np.mean(box)
+		ratio = np.power(np.divide(np.subtract(box, mean),mean),2)
+		all_data.append(np.mean(ratio))
+		var_data.append(np.std(ratio))
+
+	cv = 1/(2.0/3.0 - N*np.mean(np.array(all_data))) - 1.5
+	cv_err = abs(pow(cv,2)*N*np.mean(np.array(var_data))/sqrt(num_boxes))
 
 	return cv, cv_err
 
@@ -80,13 +84,16 @@ def calc_pressure(virial, virial_err, temp,
 	return [p, p_err]
 
 # Main program
-# calculates the physical quantities and write them in a file
+# calculates the physical quantities
 # we also write a table in latex format to insert into the report
-csvfile = open("consolidated2.dat", "w")
 latex = open("latex_table.txt", "w")
-fields = ["DENSITY", "T_SET", "T_OUT", "T_OUT_ERR", "CV", "CV_ERR", "P", "P_ERR"]
-writer = csv.DictWriter(csvfile, fieldnames = fields, delimiter = "\t")
-writer.writeheader()
+densities = []
+temps = []
+temps_err = []
+cvs = []
+cvs_err = []
+press = []
+press_err = []
 
 for run in range(0, NUM_FILES):
 
@@ -104,37 +111,68 @@ for run in range(0, NUM_FILES):
 	cutoff = settings['CUTOFF']
 	temp = settings['TEMP']
 
-	row = {}
+	# Calculate physical variables and its error
 	[t_out, t_err] = mean_error(temp_vec)
 	[virial_out, virial_err] = mean_error(virial_vec)
+	[Epp, Epp_err] = mean_error(np.divide(Etot, N))
 	[cv_out, cv_err] = calc_heat_cap(Ek, N)
 	[p_out, p_err] = calc_pressure(virial_out, virial_err, t_out, 
 						t_err, cutoff, N, density)
 
-	row["DENSITY"] = density
-	row["T_SET"] = temp
-	row["T_OUT"] = t_out
-	row["T_OUT_ERR"] = t_err
-	row["CV"] = cv_out
-	row["CV_ERR"] = cv_err
-	row["P"] = p_out
-	row["P_ERR"] = p_err
+	# Append the data to the vectors for plotting
+	densities.append(density)
+	temps.append(t_out)
+	temps_err.append(t_err)
+	cvs.append(cv_out)
+	cvs_err.append(cv_err)
+	press.append(p_out)
+	press_err.append(p_err)
 
+	# Format the numbers to the correct digit for table
 	t = significant_digit(t_out, t_err)
 	p = significant_digit(p_out, p_err)
 	cv = significant_digit(cv_out, cv_err)
+	E = significant_digit(Epp, Epp_err)
 
+	# Write in latex table
 	latex_row = str(round(density,2)) + " & "
 	latex_row += str(round(temp,2)) + " & "
 	latex_row += str(t[0]) + "(" + str(t[1]) + ") & "
+	latex_row += str(E[0]) + "(" + str(E[1]) + ") & "
 	latex_row += str(p[0]) + "(" + str(p[1]) + ") & "
 	latex_row += str(cv[0]) + "(" + str(cv[1]) + ") \\\\ \n"
 
 	latex.write(latex_row)
 
-	writer.writerow(row)
-
-csvfile.close()
 latex.close()
-		
+
+# Generate pressure and heat capacity graphs for different densities
+np_dens = np.array(densities)
+cv_graph = {}
+p_graph = {}
+unique_dens = np.unique(np_dens).tolist()
+print unique_dens
+for density in unique_dens:
+	
+	p_graph[density] = {}
+	cv_graph[density] = {}
+	indexes = np.where(np_dens == density)[0].tolist()
+
+	t = list(np.array(temps)[indexes])
+	t_err = list(np.array(temps_err)[indexes])
+
+	p_graph[density]["T"] = t
+	p_graph[density]["T_ERR"] = t_err
+	cv_graph[density]["T"] = t
+	cv_graph[density]["T_ERR"] = t_err
+	
+	p_graph[density]["P"] = list(np.array(press)[indexes])
+	p_graph[density]["P_ERR"] = list(np.array(press_err)[indexes])
+	cv_graph[density]["CV"] = list(np.array(cvs)[indexes])
+	cv_graph[density]["CV_ERR"] = list(np.array(cvs_err)[indexes])
+
+print p_graph, cv_graph
+
+
+
 

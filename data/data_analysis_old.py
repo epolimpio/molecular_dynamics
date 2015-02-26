@@ -4,10 +4,10 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pylab as P
 
-data = np.loadtxt("data/energy.dat", skiprows=5)
-correl = np.loadtxt("data/correlation.dat", skiprows=5)
-vel_correl = np.loadtxt("data/vel_corrGas.dat", skiprows=5)
-p = np.loadtxt("data/pressure.dat", skiprows=5)
+data = np.loadtxt("energy006.dat", skiprows=5)
+correl = np.loadtxt("correlation006.dat", skiprows=5)
+vel_correl = np.loadtxt("vel_corrGas.dat", skiprows=5)
+p = np.loadtxt("pressure006.dat", skiprows=5)
 
 print 1+1/(3*864*0.5)*np.mean(p)+16*np.pi*1.2/(3*0.5)*(2/(3*3.3**9) - 1/(3.3**3))
 
@@ -49,12 +49,3 @@ print z
 plt.loglog(range(100,350), modvcorr[100:350])
 
 plt.show()
-
-def read_header(filename):
-	
-	f = open(filename)
-	for i in range(0,4):
-		txt = f.readline
-		data[i] = float(txt.split("->")[1])
-	f.close()
-	return data
