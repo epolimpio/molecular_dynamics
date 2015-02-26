@@ -1,0 +1,64 @@
+\documentclass[aps,prl,reprint,groupedaddress]{revtex4-1}
+
+\begin{document}
+
+%Title of paper
+\title{Molecular Dynamics under Lennard-Jones potential}
+
+
+\author{Eduardo Pavinato Olimpio}
+%\email[]{epolimpio@gmail.com}
+
+\affiliation{ICCP - Delft University of Technology}
+
+\date{\today}
+
+\begin{abstract}
+% insert abstract here
+	In this report we outline the results obtained using a classical molecular dynamics model for atoms interacting under the Lennard-Jones potential. The simulations were run using values compatible to the dynamics of Argon atoms as done by \textit{Verlet} \cite{Verlet1967}. We use the simulation to calculate the pressure, the heat capacity and the correlation function of this system for different temperatures and volumes. Moreover, for the liquid phase, we reproduce the results of \textit{Alder \& Wainwright} \cite{Alder1970} which shows that the decay of the velocity autocorrelation goes as the power $-3/2$ with time.
+\end{abstract}
+
+\maketitle
+
+% References should be done using the \cite, \ref, and \label commands
+\section{Introduction}
+% Put \label in argument of \section for cross-referencing
+%\section{\label{}}
+Molecular dynamics has been successfully used method for studying classical many-particles systems. It has been used for the study of systems in equilibrium and also for the understanding of the behavior out of equilibrium \cite{RapaportBook}. The methodology behind the simulation is simple and consists on integrating the classical equation of motion ($\vec{F} = m\vec{a}$) through time. However, there are some subtleties used for the computation of the problem which will be explained in the next section.
+
+In the reported simulations, both the number of particles and the system volume are kept constant. And, as a result of the fact that the forces depend only on the relative positions of the particles, both the total momentum and energy of the systems are  constant, which implies that this is equivalent to a microcanonical ensemble.
+
+The physical quantities of the system are obtained through the calculation of the ensemble averages. Therefore, we need to use a reasonable number of particles in the simulations. In our simulations we use 864 particles in line with the literature \cite{Verlet1967, Rahman1964}.
+
+In the following sections we describe the methods employed in the simulation of the molecular dynamics under the Lennard-Jones potential. Subsequently, the thermodynamic quantities and the correlation functions are presented. Finally, we discuss about the decay of the velocity autocorrelation function.
+
+\section{Simulation description \label{description}}
+
+The simulation approach used follows closely the description of section 8.2-4 of the book of \textit{Thijssen} \cite{ICCPBook}. As mentioned before, we consider that the particles interact through the Lennard-Jones potential:
+
+\begin{equation}
+	V(r) = 4 \epsilon \left[\left(\frac{\sigma}{r} \right)^{12} - \left(\frac{\sigma}{r} \right)^{6} \right]
+\end{equation}
+
+In all the simulations we follow the approach of \textit{Verlet} \cite{Verlet1967} and use natural units, with $\epsilon = 1$, $\sigma = 1$, $m = 1$ and the Boltzmann constant $k_B = 1$. Hence, all lengths are given in units of $\sigma$, the energies are in units of $\epsilon$ and the temperature in units of $\epsilon/k_B$. For argon, $\sigma = 3.405 \textup{\AA}$, $\epsilon/k_B = 119.8 \textup{K}$ \cite{Argon} and $m = 39.948 \textup{u}$. Using natural units we can write the force between two particles as:
+
+\begin{equation}
+	\vec{F_{ij}} = 24 \left( \vec{r_i} - \vec{r_j} \right) \left(2r_{ij}^{-14} - r_{ij}^{-8} \right)
+\end{equation}
+where $r_{ij} = |\vec{r_i} - \vec{r_j}|$.
+
+
+
+\section{Thermodynamic Quantities \label{thermo}}
+
+\section{Correlation function \label{correlation}}
+
+\section{Decay of the velocity autocorrelation function \label{decay}}
+
+\section{Conclusion \label{conclusion}}
+
+
+% Create the reference section using BibTeX:
+\bibliography{Sciences.bib}
+
+\end{document}

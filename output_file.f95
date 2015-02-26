@@ -3,7 +3,7 @@ module output_file
     use simParam
     use physical_quantities, only: correl_histogram, &
                             vel_corr, vel_corr_err, &
-                            mod_vel_corr, mod_vel_corr_err
+                            mod_vel_corr, mod_vel_corr_err, rF
     implicit none
 
     integer, parameter :: fEnergy = 1001
@@ -58,6 +58,16 @@ contains
         end do
 
     end subroutine write_correlation
+
+    subroutine write_pressure
+
+        integer :: i
+
+        do i = 1, size(rF)
+          write(fPressure, *) rF(i)
+        end do
+
+    end subroutine write_pressure
 
     subroutine write_vel_corr
 

@@ -25,6 +25,7 @@ contains
         ! The maximum distance in a specific direction is
         ! half the box size, we choose sqrt times that as max. bin
         num_bins = floor(box_size/2d0/DR) + 1
+        if (allocated(correl_histogram)) deallocate(correl_histogram)
         allocate(correl_histogram(num_bins))
         correl_histogram(:) = 0
 

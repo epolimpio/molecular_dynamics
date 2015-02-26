@@ -28,11 +28,26 @@ contains
       call readSimParam("./input.ini")
     end if
 
+    ! Print parameters to screen
+    print *, "N: ", N
+    print *, "TEMP: ", TEMP
+    print *, "DENSITY: ", DENSITY
+    print *, "DT: ", DT
+    print *, "NUM_STEPS: ", NUM_STEPS
+    print *, "STEPS_TO_RENORM: ", STEPS_TO_RENORM
+    print *, "NUM_RENORM: ", NUM_RENORM
+    print *, "FIRST_RENORM: ", FIRST_RENORM
+    print *, "CUTOFF: ", CUTOFF
+    print *, "DR: ", DR
+
     ! Initialize correlation function histogram
     ! and calculation of heat capacity
     call init_histogram
 
     ! Allocate the particle dynamics vectors
+    if (allocated(r)) deallocate(r)
+    if (allocated(v)) deallocate(v)
+    if (allocated(a)) deallocate(a)
     allocate(r(3,N))
     allocate(v(3,N))
     allocate(a(3,N))
@@ -123,13 +138,14 @@ contains
     ! Calculate heat capacity
     call calc_heat_capacity
     call calc_pressure
-    call calc_veloc_corr
+    !call calc_veloc_corr
 
     print *, "Cv: ", Cv, "P: ", P
 
     ! Write correlation function to a file
     call write_correlation
-    call write_vel_corr
+    !call write_vel_corr
+    call write_pressure
 
     print *, "END!"
 

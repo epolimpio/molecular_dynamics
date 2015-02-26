@@ -20,6 +20,7 @@ OBJS += physical_quantities.o
 OBJS += output_file.o
 OBJS += simulation.o
 OBJS += main.o # List of object dependencies
+#OBJS += main_noloop.o # To run without loop
 
 $(TARGET): $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS) $(LDFLAGS)

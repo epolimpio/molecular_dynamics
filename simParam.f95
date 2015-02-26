@@ -17,13 +17,13 @@ module simParam
     ! Temperature renormalization parameters
     integer, parameter :: STEPS_TO_RENORM = 25
     integer, parameter :: NUM_RENORM = 30
-    integer, parameter :: FIRST_RENORM  = 100
+    integer, parameter :: FIRST_RENORM  = 300
 
     ! Size of histogram bin
     real(8), parameter :: DR = 1d-2
 
     ! Potential cutoff
-    real(8), parameter :: CUTOFF = 3.2
+    real(8), parameter :: CUTOFF = 3.3
 
     ! Lattice size
     real(8) :: latt_size, box_size
@@ -45,6 +45,24 @@ contains
         box_size = latt_size*N_cube_side
 
     end subroutine init_param
+
+    subroutine set_param(n_set, temp_set, dens_set)
+    ! Initialize parameters without recurring to file
+
+        integer, intent(in) :: n_set
+        real(8), intent(in) :: temp_set, dens_set
+
+        ! System parameters
+        N = n_set
+        TEMP = temp_set
+        DENSITY = dens_set
+
+        ! Lattice size
+        latt_size = (4d0/DENSITY)**(1d0/3)
+        N_cube_side = nint((N/4)**(1d0/3))
+        box_size = latt_size*N_cube_side
+
+    end subroutine set_param
 
 
   subroutine readSimParam(filename)
@@ -78,17 +96,6 @@ contains
 
     end do
 
-    ! Print read parameters to screen
-    print *, "N: ", N
-    print *, "TEMP: ", TEMP
-    print *, "DENSITY: ", DENSITY
-    print *, "DT: ", DT
-    print *, "NUM_STEPS: ", NUM_STEPS
-    print *, "STEPS_TO_RENORM: ", STEPS_TO_RENORM
-    print *, "NUM_RENORM: ", NUM_RENORM
-    print *, "FIRST_RENORM: ", FIRST_RENORM
-    print *, "CUTOFF: ", CUTOFF
-    print *, "DR: ", DR
     close(20)
 
     ! Calculate lattice parameters
