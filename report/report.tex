@@ -25,7 +25,7 @@
 \section{Introduction}
 % Put \label in argument of \section for cross-referencing
 %\section{\label{}}
-Molecular dynamics has been successfully used method for studying classical many-particles systems. It has been used for the study of systems in equilibrium and also for the understanding of the behavior out of equilibrium \cite{RapaportBook}. The methodology behind the simulation is simple and consists on integrating the classical equation of motion ($\vec{F} = m\vec{a}$) through time. However, there are some subtleties used for the computation of the problem which will be explained in the next section.
+Molecular dynamics has been a successfully used method for studying classical many-particles systems. It has been used for the study of systems in equilibrium and also for the understanding of the behavior out of equilibrium \cite{RapaportBook}. The methodology behind the simulation is simple and consists on integrating the classical equation of motion ($\vec{F} = m\vec{a}$) through time. However, there are some subtleties used for the computation of the problem which will be explained in the next section.
 
 In the reported simulations, both the number of particles and the system volume are kept constant. And, as a result of the fact that the forces depend only on the relative positions of the particles, both the total momentum and energy of the systems are  constant, which implies that this is equivalent to a microcanonical ensemble.
 
@@ -61,7 +61,7 @@ With the force, to calculate the motion of the particles we need an integration 
 \end{array}
 \end{equation}
 
-It is important to point out that the accumulated error in position after a large number of integration steps is $\mathcal{O}(h^2)$. The same holds true for the velocity. Although better precision algorithms could be implemented, the \textit{Verlet algorithm} has the advantage of being simple and stable. Most important, the algorithm is time reversible, which warranties that the integrator will not lead to energy drift (arithmetic errors can lead to drift for long times). This is a property of the more general concept of \textit{sympletic integrators}, which has the property of generating solutions with the same geometric properties in phase space as the continuum dynamical system. The \textit{Verlet algorithm} is the simplest implementation of this class of integrators. It can be seen from Table \ref{thermo_data} that the total energy per particle oscillates in the fifth digit, indicating the stability of the algorithm.
+It is important to point out that the accumulated error in position after a large number of integration steps is $\mathcal{O}(h^2)$. The same holds true for the velocity. Although better precision algorithms could be implemented, the \textit{Verlet algorithm} has the advantage of being simple and stable. Most important, the algorithm is time reversible, which warranties that the integrator will not lead to energy drift (arithmetic errors can lead to drift for long times though). This is a property of the more general class of \textit{sympletic integrators}, which has the property of generating solutions with the same geometric properties in phase space as the continuum dynamical system. The \textit{Verlet algorithm} is the simplest implementation of this class of integrators. It can be seen from Table \ref{thermo_data} that the total energy per particle oscillates in the fifth digit, indicating the stability of the algorithm.
 
 \subsection{Initial conditions}
 
@@ -71,7 +71,7 @@ In addition to the number of particles, we set the temperature ($T$) and the den
 	\frac{1}{2}m \langle v_x^2 \rangle = \frac{1}{2}  k_B T 
 \end{equation}
 
-The initial positions are such as that the particles are located in the sites of a Bravais-FCC lattice, which is the ground state configuration of the noble gases such as Argon \cite{ICCPBook}. For each unit cell, we have 4 particles. Moreover, as we use a box of M cells per length, the number of particles is chosen such that the FCC configuration is completed, therefore $N = 4M^3$. For our simulation we use $M=6$ such that $N=864$.
+The initial positions are such as that the particles are located in the sites of a Bravais-FCC lattice, which is the ground state configuration of the noble gases such as Argon \cite{ICCPBook}. For each unit cell, we have 4 particles. Moreover, as we use a box of M cells per length, the number of particles is chosen such that the FCC configuration is completed, therefore $N = 4M^3$. For our simulation we use $M=6$ such that $N=864$. The density determines the size of each Bravais lattice cell as $l = (4/\rho)^{1/3}$, as we place 4 particles per cell. To give an order of magnitude, for the Argon the unity of the density is $4m/\sigma^3 \approx 6700 \textup{kg}/\textup{m}^3$.
 
 As the simulation starts, however, the system relax towards equilibrium, which changes the total kinetic energy of the system, and consequently its temperature. As we want the temperature to be close to the temperature we set, for the initial time steps we renormalize the velocities of all the particles as:
 
@@ -82,18 +82,20 @@ where $T_{\text{set}}$ is the temperature we set. The system keeps drifting from
 
 \subsection{Choice of the time step}
 
-In natural units, the time is given in units of $\tau = \sqrt{m \sigma^2/\epsilon}$ which, for Argon atoms, is equal to $2.156 \textup{ps}$. Approximating the Lennard-Jones potential as an harmonic potential around the minimum, we can estimate the oscillation frequency. This is given by $\omega^2 = \frac{72 \epsilon}{m 2^{1/3} \sigma^2}$, which means that the period of oscillation is $T \approx 0.83 \tau$. Hence, we need to choose the time step to be a small fraction os this period. In our simulations we use $h = 0.004 \tau$, which is around $5 \%$ of the period and is around $10^{-14} \textup{s}$ for argon, in line with the literature \cite{Rahman1964}. After the temperature stabilization, we run the simulation for $10^4$ time steps, which means that it runs for $10^{-10} \textup{s}$
+In natural units, the time is given in units of $\tau = \sqrt{m \sigma^2/\epsilon}$ which, for Argon atoms, is equal to $2.156 \textup{ps}$. Approximating the Lennard-Jones potential as an harmonic potential around the minimum, we can estimate the oscillation frequency. This is given by $\omega^2 = \frac{72 \epsilon}{m 2^{1/3} \sigma^2}$, which means that the period of oscillation is $T \approx 0.83 \tau$. Hence, we need to choose the time step to be a small fraction of this period. In our simulations we use $h = 0.004 \tau$, which is around $0.5 \%$ of the period and is around $10^{-14} \textup{s}$ for argon, in line with the literature \cite{Rahman1964}. After the temperature stabilization, we run the simulation for $10^4$ time steps, which means that it runs for $10^{-10} \textup{s}$
 
 \subsection{Periodic boundary conditions}
 
-We deal with the boundaries assuming periodic boundary conditions. This means that when a particle crosses the boundary of the system it comes in by the opposite side with the same velocity vector. It can be thought as if the system had copies of it around the box which means that we have to take the boundary into account in the calculation of the distances $r_{ij}$ in equation \ref{force}. We can notice that, being the box of size $L$, the maximum distance between the particles in one direction is $L/2$.
+We deal with the boundaries assuming periodic boundary conditions. This means that when a particle crosses the boundary of the system it comes in by the opposite side with the same velocity vector. It can be thought as if the system had copies of it around the box, meaning that we have to take the boundary into account in the calculation of the distances $r_{ij}$ in equation (\ref{force}). We can notice that, being the box of size $L$, the maximum distance between the particles in one direction is $L/2$.
 
 \section{Thermodynamic Quantities \label{thermo}}
+
+All the expectation values of physical quantities are calculated as averages of the configurations obtained through simulations along the time steps. We used the approach of \textit{data blocking} to calculate the averages and their deviations. In the appendix we provide further details of the methodology. 
 
 \begingroup
 \squeezetable
 \begin{table}[ht]%[H] add [H] placement to break table across pages
-\caption{Thermodynamic data extract from simulation\label{thermo_data}}
+\caption{Thermodynamic data extracted from simulation. $rho$ is the density, T (set) ia the set temperature, T (real) is the temperature read during the ``experiment'', U is the total energy per particle, $\beta P/\rho$ is the compressibility factor and $C_{\text{pot}}/N$ is the specific heat per particle due to the potential energy \label{thermo_data}}
 \begin{ruledtabular}
 \begin{tabular}{ c  c  c  c  c  c }
 $\rho$ & T (set) & T (real) & $U$ & $\beta P/\rho$ & $C_{\text{pot}}/N$ \\ \hline
@@ -156,32 +158,104 @@ The pressure is calculated through the virial expansion, with a correction for t
    - \frac{2\pi N}{3k_BTV}\int_{r_c}^{\infty} r^3 \frac{\partial U}{\partial r} g(r) dr
 \end{array}
 \end{equation}
-where the derivative of the potential is given by the force, $-F_{ij}$. Following the approach of \textit{Verlet} \cite{Verlet1967}, for the correction term we use $g(r) = 1$ above the cutoff, such that the correction will be given by:
+where the derivative of the potential is given by the force, as $-F_{ij}$. Following the approach of \textit{Verlet} \cite{Verlet1967}, for the correction term we use $g(r) = 1$ above the cutoff, such that the correction will be given by:
 
 \begin{equation}
-  \int_{r_c}^{\infty} r^3 \left[ 24 \epsilon \left( -\frac{2 \sigma^{12}}{r^{13}} + \frac{\sigma^6}{r^7} \right) \right] = 8 \epsilon \left( -\frac{2 \sigma^{12}}{3r_c^{9}} + \frac{\sigma^6}{r_c^3} \right)
+  \int_{r_c}^{\infty} r^3 \frac{\partial U}{\partial r} g(r) dr = 8 \epsilon \left( -\frac{2 \sigma^{12}}{3r_c^{9}} + \frac{\sigma^6}{r_c^3} \right)
 \end{equation}
 
-The values obtained for several conditions are reported on Table \ref{thermo_data} and Figure \ref{press_graph}. For an ideal gas the \textit{compressibility factor} $\beta P/\rho$ is 1. Indeed, for low densities and high temperatures, the values obtained are close to 1. Another feature that is clear from the data is the following: if the particles has a mean distance that the dominant forces are attractive, the ratio is below 1 (possibly negative for high attraction); if the particles tend to stay closer to each other (high temperature and/or high density), then the compressibility factor is above 1.
+The values obtained for several conditions are reported on Table \ref{thermo_data} and Figure \ref{press_graph}. For an ideal gas the \textit{compressibility factor} $\beta P/\rho$ is 1. Indeed, for low densities and high temperatures, the values obtained are close to 1. Another feature that is clear from the data is the following: if the particles has a mean distance that the dominant forces are attractive, the ratio is below 1 (possibly negative for high attraction); if the particles tend to stay closer to each other (high temperature and/or high density), then the compressibility factor is above 1. Although the compressibility factor is dimensionless, notice that, in natural units, the factor $\beta / \rho$ is approximately 1, and the pressure is in units of $\epsilon/\sigma^3 \approx 42 \textup{MPa}$.
 
 \begin{figure}[ht]
 	\includegraphics[scale=0.4]{pressure.png}
 	\caption{Calculated pressure as a function of temperature for  several isochores\label{press_graph}}
 \end{figure}
 
+We compared the results obtained  with those of \textit{Verlet}, and most of it are in agreement. The most noticeable difference is given for $\rho = 0.88$ where below $T=1$ we notice a break in the pressure graph towards negative pressures. However, the melting point for $\rho = 0.88$ is at $T=0.82$ and our periodic conditions hinders the occurence of a two phase system which appears in the trasition \cite{Verlet1967}. \textit{Verlet} uses a ``cooling down'' technique to overcome this problem, which we do not use here.
+
 \subsection{Specific Heat}
+
+The specific heat (per particle) is calculated following \textit{Lebowitz et. al} \cite{Lebowitz1967} using the fluctuations of the kinetic energy in a microcanonical ensemble:
+
+\begin{equation}
+  \frac{C_v}{N} = \left(\frac{2}{3} - N\frac{\langle \delta K^2 \rangle}{\langle K \rangle^2} \right)^{-1}
+\end{equation}
+
+In order to see the effect of the potential in the specific heat capacity, we will subtract the kinetic part, defining the ``potential'' heat capacity $C_{\text{pot}}/N$ as:
+
+\begin{equation}
+  \frac{C_{\textup{pot}}}{N} = \frac{C_v}{N} - \frac{3}{2}
+\end{equation}
+
+The results are shown in Table \ref{thermo_data} and Figure \ref{heat_cap_graph} and the natural unit for the heat capacity is $k_B$. As expected we have two limiting conditions for the specific heat: (i) if it is only due to the kinetic part, as in the ideal gas, then $C_{\text{pot}}/N = 0$; (ii) in the case of a solid, we have the Dulong-Petit law, and $C_{\text{pot}}/N = 1.5$. This can be clearly seen in the graph as for higher densities and low temperatures (solid) we have $C_{\text{pot}}/N$ close to 1.5 whereas for low densities and high temperatures (gas) $C_{\text{pot}}/N$ is close to 0. We compared these results with those obtained by \textit{Lebowitz et. al} \cite{Lebowitz1967} and they are also in agreement. For $\rho=0.88$ we can see that the heat capacity drops for temperatures above $T=0.82$ (melting point) indicating a phase transition.
 
 \begin{figure}[ht]
 	\includegraphics[scale=0.4]{heat_cap.png}
 	\caption{Calculated potential specific heat per particle as a function of temperature for  several isochores (in units of $k_B$)\label{heat_cap_graph}}
 \end{figure}
 
-\section{Correlation function \label{correlation}}
+\section{Pair correlation function \label{correlation}}
 
-\section{Decay of the velocity autocorrelation function \label{decay}}
+The pair correlation function is useful to understand the microscopic characteristic of the system. This is calculated by keeping a histogram of the number of pairs at a distance $[r, r+\Delta r]$ from each other, which we denote as $n(r)$. This histogram is averaged over all the time steps and then normalized to give the pair correlation function as:
+
+\begin{equation}
+  g(r) = \frac{2V}{N(N-1)} \left[\frac{\langle n(r) \rangle}{4 \pi r^2 \Delta r} \right]
+\end{equation}
+
+Figure \ref{correl_graph} shows the pair correlation function calculated through the simulation. These results resemble the graphs shown in section 3.4 of \textit{Le Bellac et. al.} \cite{Bellac2004}, and are characteristic of each phase. These results are also in agreement with those reported in the literature \cite{Rahman1964, Verlet1968}. For the solid phase it is important to notice that the distances are measured using spherical symetry, but the Bravais FCC lattice vectors are not in the same direction, such that the peaks are not in integer values of $\sigma$. This also leads to the fact that we find some intermediate peaks which are less intense. The Fourier transform of the pair correlation funtion is related to the structure factor of the FCC latice \cite{Bellac2004}.
+
+\begin{figure}[ht]
+	\includegraphics[scale=0.45]{correlation.png}
+	\caption{Pair correlation function for three different states, (i) \textbf{Solid:} $T = 0.5$ and $\rho = 1.2$; (ii) \textbf{Liquid:} $T = 1.0$ and $\rho = 0.8$; (iii) \textbf{Gas:} $T = 3.0$ and $\rho = 0.3$ \label{correl_graph}}
+\end{figure}
+
+We then used the correlation funtion to evaluate the phase transition for $\rho = 0.88$ as we anticipated in the analysis of the thermodynamic quantities. Indeed, in Figure \ref{phase_trans} it is possible to see that the pair correlation function resembles that of a solid for lower temperatures and for temperatures above the transition the correlation function is of a liquid.
+
+\begin{figure}[ht]
+	\includegraphics[scale=0.4]{phase_trans.png}
+	\caption{Pair correlation function for density $\rho=0.88$ at different temperatures (here the set temperature is reported, for the real temperature we refer to Table \ref{thermo_data}) around the solid-liquid transition. \label{phase_trans}}
+\end{figure}
+
+\section{Velocity autocorrelation function \label{decay}}
+
+We first calculate the velocity autocorrelation function as:
+
+\begin{equation}\label{eq_vel_correl}
+	A(\theta) = \langle \vec{v}(t) \cdot \vec{v}(t+\theta) \rangle
+\end{equation}
+which take into account the vectorial character of the velocity and indicates the correlation time of the system: if the interactions are more relevant, as in the case of solids, the velocities change faster than in less interacting systems. We can see from Figure \ref{vel_correl} that for small times this follows a Langevin exponential decay \cite{Rahman1964} and the correlation time is higher for gases than for solids and liquids.
+
+\begin{figure}[ht]
+	\includegraphics[scale=0.4]{vel_correl.png}
+	\caption{Velocity autocorrelation function, equation (\ref{eq_vel_correl}), for three different states, (i) \textbf{Solid:} $T = 0.5$ and $\rho = 1.2$; (ii) \textbf{Liquid:} $T = 1.0$ and $\rho = 0.8$; (iii) \textbf{Gas:} $T = 3.0$ and $\rho = 0.3$ \label{vel_correl}}
+\end{figure}
+
+Next we calculate the velocity (in modulus) autocorrelation function, given by:
+
+\begin{equation}\label{eq_mod_correl}
+	A_{\text{mod}}(\theta) = \langle v(t) v(t+\theta) \rangle
+\end{equation}
+
+\begin{figure}[ht]
+	\includegraphics[scale=0.4]{decay.png}
+	\caption{Velocity (modulus) autocorrelation function, equation (\ref{eq_mod_correl}), for two different states, (i) \textbf{Gas:} $T = 3.0$ and $\rho = 0.3$; (ii) \textbf{Liquid:} $T = 1.0$ and $\rho = 0.8$ \label{vel_decay}}
+\end{figure}
+
+The results are shown in Figure \ref{vel_decay}. Again, we see that for gases the correlation function takes more time to decay, but does it in an exponential fashion. For liquids, however, the decay goes as $-3/2$ as reported by \textit{Alder \& Wainwright} \cite{Alder1970}, which indicates the formation of a vortex flow pattern in the fluid.
 
 \section{Conclusion \label{conclusion}}
 
+In this work we simulated the dynamics of a molecular dynamic system interacting through a Lennard-Jones potential, using values compatible with the dynamics of Argon. For this system we calculated the pressure, heat capacity and correlation functions, comparing the results with the available literature. The molecular dynamics approach could be used to the study of several other conditions, such as systems with internal degrees of freedom, or with different types of interactions. Many optimizations could be also added to this system, such as the neighboring list to reduce the time for calculating the force. Furthermore, we could use the present simulation to compare the simulations with the extensive experimental data for Argon, as reported by \textit{Tegeler et. al.} \cite{Tegeler1999}.
+
+\appendix
+\section{APPENDIX: Data Blocking}
+
+When calculating the error of the physical quantities, it must be taken into account that the data are correlated as the step time is smaller then the correlation time. To overcome this problem, we use a method called \textit{data blocking}. This is implemented by slicing the the data in blocks that are bigger than the correlation time and calculating the average of the physical quantity inside it:
+
+\begin{equation}
+	\bar{A_j} = \frac{1}{m} \sum_{k=jm+1}^{m(j+1)} A_k
+\end{equation}
+where $A_k$ is the physical quantity in time step $k$ and we divide the data in $M = S/m$ blocks, where $S$ is the total number of time steps used (10000 in our case). If the size of one box is bigger than correlation time, then the sample of all the averages are independent and we can calculate the error by the standard deviation of the means. The size of the boxes must be chosen such that it comprises a time bigger than the correlation time and, at the same time, we must have enough boxes to calculate the error statistics reliably. In practice, we increase the size of the boxes up to the point that the calculated deviation does not depend on the size of the box anymore. In our case we used 250 time steps on each box, in a total of 40 boxes. This is in agreement to Figure \ref{vel_correl}, where we can see that for $t = \tau$ (equivalent to 250 time steps), the velocity autocorrelation function is almost zero for all states. 
 
 % Create the reference section using BibTeX:
 \bibliography{Sciences.bib}

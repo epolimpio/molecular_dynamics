@@ -15,6 +15,7 @@ PI = np.pi
 LINES_HEADER = 5
 NUM_FILES = 64
 BOX_SIZE = 250
+EXCLUSION = [1, 2, 3, 4, 9, 10, 11, 17, 25, 38]
 
 # Functions
 def read_header(filename):
@@ -77,7 +78,7 @@ def calc_pressure(virial, virial_err, temp,
 	
 	virial_term = virial/(3*N*temp)
 	virial_term_err = abs(virial_term*sqrt((virial_err/virial)**2 + (temp_err/temp)**2))
-	
+
 	p = 1 + virial_term + correction
 	p_err = virial_term_err + correction_err
 
@@ -86,93 +87,167 @@ def calc_pressure(virial, virial_err, temp,
 # Main program
 # calculates the physical quantities
 # we also write a table in latex format to insert into the report
-latex = open("latex_table.txt", "w")
 densities = []
 temps = []
+temp_set = []
 temps_err = []
 cvs = []
 cvs_err = []
 press = []
 press_err = []
+en = []
+en_err = []
 
+file_run = open("resume.txt", "w")
 for run in range(0, NUM_FILES):
 
-	fileref = '%0*d' % (3, run+1)
-	virial_vec = np.loadtxt("pressure"+fileref+".dat", skiprows=LINES_HEADER)
-	energy = np.loadtxt("energy"+fileref+".dat", skiprows=LINES_HEADER)
-	settings = read_header("pressure"+fileref+".dat")
-	Ek = energy[:,0]
-	Ep = energy[:,1]
-	Etot = energy[:,2]
-	temp_vec = energy[:,3]
+	if (run+1 not in EXCLUSION):
 
-	N = settings['N']
-	density = settings['DENSITY']
-	cutoff = settings['CUTOFF']
-	temp = settings['TEMP']
+		fileref = '%0*d' % (3, run+1)
+		virial_vec = np.loadtxt("pressure"+fileref+".dat", skiprows=LINES_HEADER)
+		energy = np.loadtxt("energy"+fileref+".dat", skiprows=LINES_HEADER)
+		settings = read_header("pressure"+fileref+".dat")
+		Ek = energy[:,0]
+		Ep = energy[:,1]
+		Etot = energy[:,2]
+		temp_vec = energy[:,3]
 
-	# Calculate physical variables and its error
-	[t_out, t_err] = mean_error(temp_vec)
-	[virial_out, virial_err] = mean_error(virial_vec)
-	[Epp, Epp_err] = mean_error(np.divide(Etot, N))
-	[cv_out, cv_err] = calc_heat_cap(Ek, N)
-	[p_out, p_err] = calc_pressure(virial_out, virial_err, t_out, 
-						t_err, cutoff, N, density)
+		N = settings['N']
+		density = settings['DENSITY']
+		cutoff = settings['CUTOFF']
+		temp = settings['TEMP']
 
-	# Append the data to the vectors for plotting
-	densities.append(density)
-	temps.append(t_out)
-	temps_err.append(t_err)
-	cvs.append(cv_out)
-	cvs_err.append(cv_err)
-	press.append(p_out)
-	press_err.append(p_err)
+		file_run.write(fileref+" T->"+str(round(temp,2))+ 
+				" Dens->"+str(round(density,2))+"\n")
 
-	# Format the numbers to the correct digit for table
-	t = significant_digit(t_out, t_err)
-	p = significant_digit(p_out, p_err)
-	cv = significant_digit(cv_out, cv_err)
-	E = significant_digit(Epp, Epp_err)
+		# Calculate physical variables and its error
+		[t_out, t_err] = mean_error(temp_vec)
+		[virial_out, virial_err] = mean_error(virial_vec)
+		[Epp, Epp_err] = mean_error(np.divide(Etot, N))
+		[cv_out, cv_err] = calc_heat_cap(Ek, N)
+		[p_out, p_err] = calc_pressure(virial_out, virial_err, t_out, 
+							t_err, cutoff, N, density)
 
-	# Write in latex table
-	latex_row = str(round(density,2)) + " & "
-	latex_row += str(round(temp,2)) + " & "
-	latex_row += str(t[0]) + "(" + str(t[1]) + ") & "
-	latex_row += str(E[0]) + "(" + str(E[1]) + ") & "
-	latex_row += str(p[0]) + "(" + str(p[1]) + ") & "
-	latex_row += str(cv[0]) + "(" + str(cv[1]) + ") \\\\ \n"
+		# Append the data to the vectors for plotting
+		densities.append(density)
+		temps.append(t_out)
+		temp_set.append(temp)
+		temps_err.append(t_err)
+		cvs.append(cv_out)
+		cvs_err.append(cv_err)
+		press.append(p_out)
+		press_err.append(p_err)
+		en.append(Epp)
+		en_err.append(Epp_err)
+file_run.close()
 
-	latex.write(latex_row)
-
-latex.close()
-
-# Generate pressure and heat capacity graphs for different densities
+# Organize the data by temperature and density
 np_dens = np.array(densities)
-cv_graph = {}
-p_graph = {}
+graph = {}
 unique_dens = np.unique(np_dens).tolist()
-print unique_dens
 for density in unique_dens:
 	
-	p_graph[density] = {}
-	cv_graph[density] = {}
+	graph[density] = {}
 	indexes = np.where(np_dens == density)[0].tolist()
 
 	t = list(np.array(temps)[indexes])
+	t_set = list(np.array(temp_set)[indexes])
 	t_err = list(np.array(temps_err)[indexes])
-
-	p_graph[density]["T"] = t
-	p_graph[density]["T_ERR"] = t_err
-	cv_graph[density]["T"] = t
-	cv_graph[density]["T_ERR"] = t_err
+	p = list(np.array(press)[indexes])
+	p_err = list(np.array(press_err)[indexes])
+	cv = list(np.array(cvs)[indexes])
+	cv_err = list(np.array(cvs_err)[indexes])
+	e = list(np.array(en)[indexes])
+	e_err = list(np.array(en_err)[indexes])
 	
-	p_graph[density]["P"] = list(np.array(press)[indexes])
-	p_graph[density]["P_ERR"] = list(np.array(press_err)[indexes])
-	cv_graph[density]["CV"] = list(np.array(cvs)[indexes])
-	cv_graph[density]["CV_ERR"] = list(np.array(cvs_err)[indexes])
+	i = 0
+	for temperature in t_set:
+		graph[density][temperature] = {}
+		
+		# Pressure Data
+		graph[density][temperature]["T"] = t[i]
+		graph[density][temperature]["T_ERR"] = t_err[i]
+		graph[density][temperature]["P"] = p[i]
+		graph[density][temperature]["P_ERR"] = p_err[i]		
+		graph[density][temperature]["CV"] = cv[i]
+		graph[density][temperature]["CV_ERR"] = cv_err[i]
+		graph[density][temperature]["E"] = e[i]
+		graph[density][temperature]["E_ERR"] = e_err[i]
+		i += 1	
 
-print p_graph, cv_graph
+# Write Latex table
+latex = open("latex_table.txt", "w")
+for density in graph.keys():
+	for temperature in graph[density].keys():
 
+		t_out = graph[density][temperature]["T"]
+		t_err = graph[density][temperature]["T_ERR"]
+		p_out = graph[density][temperature]["P"]
+		p_err = graph[density][temperature]["P_ERR"]
+		cv_out = graph[density][temperature]["CV"]
+		cv_err = graph[density][temperature]["CV_ERR"]
+		Epp = graph[density][temperature]["E"]
+		Epp_err = graph[density][temperature]["E_ERR"]
 
+		# Format the numbers to the correct digit for table
+		t = significant_digit(t_out, t_err)
+		p = significant_digit(p_out, p_err)
+		cv = significant_digit(cv_out, cv_err)
+		E = significant_digit(Epp, Epp_err)
 
+		# Write in latex table
+		latex_row = str(round(density,2)) + " & "
+		latex_row += str(round(temperature,2)) + " & "
+		latex_row += str(t[0]) + "(" + str(t[1]) + ") & "
+		latex_row += str(E[0]) + "(" + str(E[1]) + ") & "
+		latex_row += str(p[0]) + "(" + str(p[1]) + ") & "
+		latex_row += str(cv[0]) + "(" + str(cv[1]) + ") \\\\ \n"
+		latex.write(latex_row)
 
+latex.close()
+
+# Plot Pressure
+plt.figure(1)
+legend = []
+for density in sorted(graph.keys()):
+	if round(density,2) not in [0.30, 1.20]:
+		legend.append(str(round(density,2)))
+		x = []
+		x_err = []
+		y = []
+		y_err = []
+		for temperature in sorted(graph[density].keys()):
+			x.append(graph[density][temperature]["T"])
+			x_err.append(graph[density][temperature]["T_ERR"])
+			y.append(graph[density][temperature]["P"])
+			y_err.append(graph[density][temperature]["P_ERR"])
+
+		plt.errorbar(x, y, xerr = x_err, yerr=y_err, fmt='-o')
+
+plt.xlabel('T')
+plt.ylabel(r'$\beta P / \rho$')
+plt.legend(legend, loc='lower right', fontsize=12, title="Density")
+
+# Plot Heat Capacity
+plt.figure(2)
+legend = []
+for density in sorted(graph.keys()):
+	
+	legend.append(str(round(density,2)))
+	x = []
+	x_err = []
+	y = []
+	y_err = []
+	for temperature in sorted(graph[density].keys()):
+		x.append(graph[density][temperature]["T"])
+		x_err.append(graph[density][temperature]["T_ERR"])
+		y.append(graph[density][temperature]["CV"])
+		y_err.append(graph[density][temperature]["CV_ERR"])
+
+	plt.errorbar(x, y, xerr = x_err, yerr=y_err, fmt='-o')
+
+plt.xlabel('T')
+plt.ylabel(r'$C_{pot}/N$')
+plt.legend(legend, loc='lower left', fontsize=12, title="Density")
+
+plt.show()
