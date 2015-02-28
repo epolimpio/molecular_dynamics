@@ -75,6 +75,8 @@ contains
     end subroutine save_kinetic
 
     subroutine calc_heat_capacity
+    ! This calculation has the purpose of print on screen only
+    ! The calculations are made in Python with the saved data
 
         real(8) :: mean_Ek
         real(8) :: dev_Ek_sq
@@ -101,6 +103,8 @@ contains
     end subroutine save_forces
 
     subroutine calc_pressure
+    ! This calculation has the purpose of print on screen only
+    ! The calculations are made in Python with the saved data
 
         P = 1 + 1d0/(3d0*N*TEMP)*sum(rF)/NUM_STEPS &
             + 16d0*PI*DENSITY/(3d0*TEMP)*(2d0/(3d0*CUTOFF**9) - 1d0/(CUTOFF**3))

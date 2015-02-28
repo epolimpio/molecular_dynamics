@@ -1,4 +1,7 @@
 program ArgonSim
+! This file loops into several temperatures and densities.
+! We save all the relevant variables to files in order to
+! perform the analysis in Python after
 
     use simulation
     use output_file
